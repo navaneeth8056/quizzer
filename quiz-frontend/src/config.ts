@@ -14,4 +14,4 @@ export const AUTH_BASE = isDevelopment
 // Google OAuth callback URLs
 export const GOOGLE_CALLBACK_URL = isDevelopment
   ? 'http://localhost:3000/chapters'
-  : 'https://quiz-learning-platform-qca72potw-navaneeth8056s-projects.vercel.app/'; // Replace xxxx with your actual Vercel frontend name 
+  : 'https://quizzer-1-t6j1.onrender.com'; // Replace xxxx with your actual Vercel frontend name 
