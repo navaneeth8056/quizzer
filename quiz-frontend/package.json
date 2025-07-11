@@ -47,5 +47,5 @@
     "@types/axios": "^0.9.36",
     "@types/react-router-dom": "^5.3.3"
   },
-  "proxy": "https://quiz-learning-platform-fcld.onrender.com"
+  "proxy": "https://quizzer-1yvr.onrender.com/"
 }

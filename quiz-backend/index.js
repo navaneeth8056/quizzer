@@ -18,7 +18,7 @@ const allowedOrigins = [
   'https://quiz-learning-platform.vercel.app',
   'http://localhost:3000',
   'http://localhost:5000',
-  'https://quiz-learning-platform-fcld.onrender.com'
+  'https://quizzer-1yvr.onrender.com/'
 
 ];
 
