@@ -24,11 +24,12 @@ console.log('MONGODB_URI:', process.env.MONGODB_URI ? 'SET' : 'NOT SET');
 
 // Middleware
 const allowedOrigins = [
-  'https://quiz-learning-platform.vercel.app',
+  'https://quizzer-1-t6j1.onrender.com',
   'http://localhost:3000',
   'http://localhost:5000',
   'https://quiz-learning-platform-fcld.onrender.com',
-  'https://quizzer-1yvr.onrender.com'
+  'https://quizzer-1yvr.onrender.com',
+  'https://quizzer-1-t6j1.onrender.com'
 ];
 
 app.use(cors({
@@ -300,9 +301,9 @@ app.get('/auth/google', (req, res, next) => {
 });
 
 app.get('/auth/google/callback', 
-  passport.authenticate('google', { failureRedirect: `${process.env.FRONTEND_URL || 'https://quiz-learning-platform.vercel.app'}/login` }),
+  passport.authenticate('google', { failureRedirect: `${process.env.FRONTEND_URL || 'https://quizzer-1-t6j1.onrender.com'}/login` }),
   (req, res) => {
-    res.redirect(`${process.env.FRONTEND_URL || 'https://quiz-learning-platform.vercel.app'}/chapters`);
+    res.redirect(`${process.env.FRONTEND_URL || 'https://quizzer-1-t6j1.onrender.com'}/chapters`);
   }
 );
 
