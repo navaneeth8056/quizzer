@@ -1,0 +1,95 @@
+[
+  {
+    "_id": "686df9e679acd8a70bb440d0",
+    "email": "test1@example.com",
+    "name": "Test User 1",
+    "username": "testuser1",
+    "country": "India",
+    "referralCode": "REF001",
+    "fikaPoints": 150,
+    "quizScores": [
+      {
+        "chapter": 1,
+        "score": 85,
+        "date": "2025-07-09T05:11:02.426Z",
+        "_id": "686df9e679acd8a70bb440d1"
+      },
+      {
+        "chapter": 2,
+        "score": 90,
+        "date": "2025-07-09T05:11:02.426Z",
+        "_id": "686df9e679acd8a70bb440d2"
+      }
+    ],
+    "unlockedModules": {
+      "1": [
+        1,
+        2,
+        3
+      ],
+      "2": [
+        1,
+        2
+      ]
+    },
+    "createdAt": "2025-07-09T05:11:02.935Z",
+    "__v": 0
+  },
+  {
+    "_id": "686df9e679acd8a70bb440d3",
+    "email": "test2@example.com",
+    "name": "Test User 2",
+    "username": "testuser2",
+    "country": "India",
+    "referralCode": "REF002",
+    "fikaPoints": 200,
+    "quizScores": [
+      {
+        "chapter": 1,
+        "score": 95,
+        "date": "2025-07-09T05:11:02.426Z",
+        "_id": "686df9e679acd8a70bb440d4"
+      }
+    ],
+    "unlockedModules": {
+      "1": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "2": [
+        1,
+        2,
+        3
+      ]
+    },
+    "createdAt": "2025-07-09T05:11:02.936Z",
+    "__v": 0
+  },
+  {
+    "_id": "686df9e679acd8a70bb440d5",
+    "email": "student@example.com",
+    "name": "John Student",
+    "username": "johnstudent",
+    "country": "India",
+    "referralCode": "REF003",
+    "fikaPoints": 75,
+    "quizScores": [
+      {
+        "chapter": 1,
+        "score": 70,
+        "date": "2025-07-09T05:11:02.426Z",
+        "_id": "686df9e679acd8a70bb440d6"
+      }
+    ],
+    "unlockedModules": {
+      "1": [
+        1,
+        2
+      ]
+    },
+    "createdAt": "2025-07-09T05:11:02.937Z",
+    "__v": 0
+  }
+]
