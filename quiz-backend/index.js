@@ -73,7 +73,7 @@ passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   // Use BACKEND_URL from environment variables for callback URL
-  callbackURL: (process.env.BACKEND_URL || 'https://quizzer-1yvr.onrender.com') + "/auth/google/callback",
+  callbackURL: `${process.env.BACKEND_URL || 'https://quizzer-1yvr.onrender.com'}/auth/google/callback`,
   passReqToCallback: true
 }, async (req, accessToken, refreshToken, profile, done) => {
   // Use state param or session fallback for referral code
@@ -300,9 +300,9 @@ app.get('/auth/google', (req, res, next) => {
 });
 
 app.get('/auth/google/callback', 
-  passport.authenticate('google', { failureRedirect: (process.env.FRONTEND_URL || 'https://quiz-learning-platform.vercel.app') + '/login' }),
+  passport.authenticate('google', { failureRedirect: `${process.env.FRONTEND_URL || 'https://quiz-learning-platform.vercel.app'}/login` }),
   (req, res) => {
-    res.redirect((process.env.FRONTEND_URL || 'https://quiz-learning-platform.vercel.app') + '/chapters');
+    res.redirect(`${process.env.FRONTEND_URL || 'https://quiz-learning-platform.vercel.app'}/chapters`);
   }
 );
 
@@ -326,26 +326,6 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'Backend is working!' });
 });
 
-// Test questions endpoint without auth (for debugging - remove in production)
-app.get('/api/test-questions/:chapter/:module', async (req, res) => {
-  try {
-    const chapterNum = Number(req.params.chapter);
-    const moduleNum = Number(req.params.module);
-    
-    if (isNaN(chapterNum) || isNaN(moduleNum)) {
-      return res.status(400).json({ error: 'Invalid chapter or module number' });
-    }
-    
-    const skip = (moduleNum - 1) * 10;
-    const questions = await Question.find({ chapter: chapterNum }).skip(skip).limit(10);
-    
-    res.json({ questions });
-  } catch (err) {
-    console.error('Error in /api/test-questions/:chapter/:module:', err);
-    res.status(500).json({ error: 'Failed to fetch questions' });
-  }
-});
-
 // Get all unique chapters
 app.get('/api/chapters', async (req, res) => {
   try {
@@ -355,21 +335,6 @@ app.get('/api/chapters', async (req, res) => {
   } catch (err) {
     console.error('Error in /api/chapters:', err);
     res.status(500).json({ error: 'Failed to fetch chapters' });
-  }
-});
-
-// Get only the first 10 questions by chapter
-app.get('/api/questions/:chapter', async (req, res) => {
-  try {
-    const chapterNum = Number(req.params.chapter);
-    if (isNaN(chapterNum)) {
-      return res.status(400).json({ error: 'Invalid chapter number' });
-    }
-    const questions = await Question.find({ chapter: chapterNum }).limit(10);
-    res.json({ questions });
-  } catch (err) {
-    console.error('Error in /api/questions/:chapter:', err);
-    res.status(500).json({ error: 'Failed to fetch questions' });
   }
 });
 
@@ -384,6 +349,64 @@ const requireAuth = (req, res, next) => {
   }
   res.status(401).json({ error: 'Authentication required' });
 };
+
+// Get questions by chapter and module (10 questions per module) - MORE SPECIFIC ROUTE FIRST
+app.get('/api/questions/:chapter/:module', requireAuth, async (req, res) => {
+  try {
+    const { chapter, module: moduleParam } = req.params;
+    const chapterNum = parseInt(chapter, 10);
+    const moduleNum = parseInt(moduleParam, 10);
+    
+    if (isNaN(chapterNum) || isNaN(moduleNum)) {
+      return res.status(400).json({ error: 'Invalid chapter or module number' });
+    }
+    
+    const skip = (moduleNum - 1) * 10;
+    const questions = await Question.find({ chapter: chapterNum }).skip(skip).limit(10);
+    
+    res.json({ questions });
+  } catch (err) {
+    console.error('Error in /api/questions/:chapter/:module:', err);
+    res.status(500).json({ error: 'Failed to fetch questions' });
+  }
+});
+
+// Get only the first 10 questions by chapter - LESS SPECIFIC ROUTE SECOND
+app.get('/api/questions/:chapter', async (req, res) => {
+  try {
+    const { chapter } = req.params;
+    const chapterNum = parseInt(chapter, 10);
+    if (isNaN(chapterNum)) {
+      return res.status(400).json({ error: 'Invalid chapter number' });
+    }
+    const questions = await Question.find({ chapter: chapterNum }).limit(10);
+    res.json({ questions });
+  } catch (err) {
+    console.error('Error in /api/questions/:chapter:', err);
+    res.status(500).json({ error: 'Failed to fetch questions' });
+  }
+});
+
+// Test questions endpoint without auth (for debugging - remove in production)
+app.get('/api/test-questions/:chapter/:module', async (req, res) => {
+  try {
+    const { chapter, module: moduleParam } = req.params;
+    const chapterNum = parseInt(chapter, 10);
+    const moduleNum = parseInt(moduleParam, 10);
+    
+    if (isNaN(chapterNum) || isNaN(moduleNum)) {
+      return res.status(400).json({ error: 'Invalid chapter or module number' });
+    }
+    
+    const skip = (moduleNum - 1) * 10;
+    const questions = await Question.find({ chapter: chapterNum }).skip(skip).limit(10);
+    
+    res.json({ questions });
+  } catch (err) {
+    console.error('Error in /api/test-questions/:chapter/:module:', err);
+    res.status(500).json({ error: 'Failed to fetch questions' });
+  }
+});
 
 // Save quiz score and award points
 app.post('/api/quiz/score', requireAuth, async (req, res) => {
@@ -423,33 +446,14 @@ app.get('/api/user/progress', requireAuth, async (req, res) => {
   }
 });
 
-// Get questions by chapter and module (10 questions per module)
-app.get('/api/questions/:chapter/:module', requireAuth, async (req, res) => {
-  try {
-    const chapterNum = Number(req.params.chapter);
-    const moduleNum = Number(req.params.module);
-    
-    if (isNaN(chapterNum) || isNaN(moduleNum)) {
-      return res.status(400).json({ error: 'Invalid chapter or module number' });
-    }
-    
-    const skip = (moduleNum - 1) * 10;
-    const questions = await Question.find({ chapter: chapterNum }).skip(skip).limit(10);
-    
-    res.json({ questions });
-  } catch (err) {
-    console.error('Error in /api/questions/:chapter/:module:', err);
-    res.status(500).json({ error: 'Failed to fetch questions' });
-  }
-});
-
 // Unlock question module
 app.post('/api/unlock/:chapter/:module', requireAuth, async (req, res) => {
   try {
-    const chapterNum = String(Number(req.params.chapter));
-    const moduleNum = Number(req.params.module);
+    const { chapter, module: moduleParam } = req.params;
+    const chapterNum = String(parseInt(chapter, 10));
+    const moduleNum = parseInt(moduleParam, 10);
     const userId = req.user._id;
-    if (isNaN(Number(chapterNum)) || isNaN(moduleNum)) {
+    if (isNaN(parseInt(chapter, 10)) || isNaN(moduleNum)) {
       return res.status(400).json({ error: 'Invalid chapter or module number' });
     }
     // Check if user has enough points
@@ -493,11 +497,27 @@ app.get('/api/user/referrals', requireAuth, async (req, res) => {
 });
 
 // Connect to MongoDB and start server only if successful
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true })
+mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
     console.log('✅ Connected to MongoDB!');
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
+      console.log('Available routes:');
+      console.log('- GET /api/test');
+      console.log('- GET /api/chapters');
+      console.log('- GET /api/questions/:chapter');
+      console.log('- GET /api/questions/:chapter/:module');
+      console.log('- GET /api/test-questions/:chapter/:module');
+      console.log('- POST /api/quiz/score');
+      console.log('- GET /api/user/progress');
+      console.log('- POST /api/unlock/:chapter/:module');
+      console.log('- GET /api/user/referrals');
+      console.log('- GET /auth/google');
+      console.log('- GET /auth/google/callback');
+      console.log('- GET /auth/logout');
+      console.log('- GET /auth/user');
+      console.log('- POST /auth/signup');
+      console.log('- POST /auth/login');
     });
   })
   .catch((err) => {
