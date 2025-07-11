@@ -13,6 +13,15 @@ const User = require('./models/User');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Debug environment variables
+console.log('Environment variables:');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('BACKEND_URL:', process.env.BACKEND_URL);
+console.log('FRONTEND_URL:', process.env.FRONTEND_URL);
+console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? 'SET' : 'NOT SET');
+console.log('GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET ? 'SET' : 'NOT SET');
+console.log('MONGODB_URI:', process.env.MONGODB_URI ? 'SET' : 'NOT SET');
+
 // Middleware
 const allowedOrigins = [
   'https://quiz-learning-platform.vercel.app',
@@ -64,7 +73,7 @@ passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   // Use BACKEND_URL from environment variables for callback URL
-  callbackURL: process.env.BACKEND_URL + "/auth/google/callback",
+  callbackURL: (process.env.BACKEND_URL || 'https://quizzer-1yvr.onrender.com') + "/auth/google/callback",
   passReqToCallback: true
 }, async (req, accessToken, refreshToken, profile, done) => {
   // Use state param or session fallback for referral code
@@ -291,9 +300,9 @@ app.get('/auth/google', (req, res, next) => {
 });
 
 app.get('/auth/google/callback', 
-  passport.authenticate('google', { failureRedirect: process.env.FRONTEND_URL + '/login' }),
+  passport.authenticate('google', { failureRedirect: (process.env.FRONTEND_URL || 'https://quiz-learning-platform.vercel.app') + '/login' }),
   (req, res) => {
-    res.redirect(process.env.FRONTEND_URL + '/chapters');
+    res.redirect((process.env.FRONTEND_URL || 'https://quiz-learning-platform.vercel.app') + '/chapters');
   }
 );
 
