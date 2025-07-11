@@ -18,8 +18,8 @@ const allowedOrigins = [
   'https://quiz-learning-platform.vercel.app',
   'http://localhost:3000',
   'http://localhost:5000',
-  'https://quizzer-1yvr.onrender.com/'
-
+  'https://quiz-learning-platform-fcld.onrender.com',
+  'https://quizzer-1yvr.onrender.com'
 ];
 
 app.use(cors({
@@ -32,17 +32,28 @@ app.use(cors({
     }
     return callback(null, true);
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Cookie'],
+  exposedHeaders: ['Set-Cookie']
 }));
 app.use(express.json());
+
+// Handle preflight requests
+app.options('*', cors());
+// Trust proxy for session cookies in production
+app.set('trust proxy', 1);
+
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
   cookie: {
-    secure: false,
-    sameSite: 'lax'
+    secure: process.env.NODE_ENV === 'production', // true in production, false in development
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }));
 app.use(passport.initialize());
@@ -306,6 +317,26 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'Backend is working!' });
 });
 
+// Test questions endpoint without auth (for debugging - remove in production)
+app.get('/api/test-questions/:chapter/:module', async (req, res) => {
+  try {
+    const chapterNum = Number(req.params.chapter);
+    const moduleNum = Number(req.params.module);
+    
+    if (isNaN(chapterNum) || isNaN(moduleNum)) {
+      return res.status(400).json({ error: 'Invalid chapter or module number' });
+    }
+    
+    const skip = (moduleNum - 1) * 10;
+    const questions = await Question.find({ chapter: chapterNum }).skip(skip).limit(10);
+    
+    res.json({ questions });
+  } catch (err) {
+    console.error('Error in /api/test-questions/:chapter/:module:', err);
+    res.status(500).json({ error: 'Failed to fetch questions' });
+  }
+});
+
 // Get all unique chapters
 app.get('/api/chapters', async (req, res) => {
   try {
@@ -335,6 +366,10 @@ app.get('/api/questions/:chapter', async (req, res) => {
 
 // Middleware to check if user is authenticated
 const requireAuth = (req, res, next) => {
+  console.log('Auth check - isAuthenticated:', req.isAuthenticated());
+  console.log('Auth check - session:', req.session);
+  console.log('Auth check - user:', req.user);
+  
   if (req.isAuthenticated()) {
     return next();
   }
