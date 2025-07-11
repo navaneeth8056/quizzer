@@ -13,5 +13,5 @@ export const AUTH_BASE = isDevelopment
 
 // Google OAuth callback URLs
 export const GOOGLE_CALLBACK_URL = isDevelopment
-  ? 'https://quizzer-1yvr.onrender.com/auth/google/callback'
-  : 'https://quizzer-1yvr.onrender.com/auth/google/callback'; 
+  ? 'https://quizzer-1yvr.onrender.com/auth/google/callback/'
+  : 'https://quizzer-1yvr.onrender.com/auth/google/callback/'; 
